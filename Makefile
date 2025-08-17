@@ -1,23 +1,26 @@
 CC=gcc
-INC_DIR=-I./include
-LIB_DIR=
-LIB=
-CFLAGS=-Wall -O0
+CFLAGS=-Wall -O0 -I./include
+BUILD = ./build/
+DEPS = file.h
+OBJ = $(addprefix $(BUILD), file.o huff.o main.o)
+COMMAND = main
 
-build:
-	gcc ./src/main.c ./src/lz77.c ./src/file.c -I./include/
+$(BUILD)%.o: %.c
+	$(CC) -c -o $@ $< $(CFLAGS)
 
-main: lz77.o file.o
-	$(CC) $(CFLAGS) -o ./build/main src/main.c build/lz77.o build/file.o $(INC_DIR)
+main: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS)
 
-file.o:
-	$(CC) $(CFLAGS) -o ./build/file src/file.c $(INC_DIR)
+install: main
+	sudo cp ./main /usr/local/bin/$(COMMAND) && chmod +x /usr/local/bin/$(COMMAND)
 
-lz77.o:
-	$(CC) $(CFLAGS) -o ./build/lz77 src/lz77.c $(INC_DIR)
-
-run:
-	./build/main
+uninstall:
+	sudo rm /usr/local/bin/$(COMMAND)
 
 clean:
-	rm -rf ./build/*
+	rm -f $(BUILD)*.o
+
+run:
+	./main
+
+.PHONY: clean run install

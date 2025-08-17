@@ -3,7 +3,7 @@
 /*
  * Read entire file into dynamically sized buffer.
  */
-FileReadResult f_readall(const char *file_name, char **data, size_t *out_size) {
+FileReadResult f_readall(const char *file_name, unsigned char **data, size_t *out_size) {
 
     size_t len = 0;
     size_t cap = INTIAL_CAPACITY;
@@ -46,7 +46,7 @@ FileReadResult f_readall(const char *file_name, char **data, size_t *out_size) {
         // Double the buffer capacity.
         cap *= 2;
 
-        char *tmp = (unsigned char *)realloc(buf, cap + 1); // +1 for null terminator here too.
+        unsigned char *tmp = (unsigned char *)realloc(buf, cap + 1); // +1 for null terminator here too.
         if (!tmp) {
             
             free(buf);

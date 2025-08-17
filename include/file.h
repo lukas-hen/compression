@@ -16,8 +16,10 @@ typedef enum {
 
 /*
  * Read entire file into dynamically sized buffer.
+ * Sets data pointer to point to allocated buffer.
+ * Note that this moves ownership to whoever passed the pointer.
  */
-FileReadResult f_readall(const char *file_name, char **data, size_t *out_size);
+FileReadResult f_readall(const char *file_name, unsigned char **data, size_t *out_size);
 
 
 #endif
