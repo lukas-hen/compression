@@ -7,7 +7,7 @@
 
 #define INTIAL_CAPACITY 240 // bytes
 
-typedef enum {
+typedef enum FileReadResult {
     READ_SUCCESSFUL,
     INVALID_ARGUMENT,
     MEMORY_ALLOCATION_ERROR,

@@ -25,8 +25,13 @@ int main(int argc, char **argv) {
     }
     
     CharDistribution distr;
-    huff_distribution(&distr, poem, size);
-    print_huff_distribution(&distr);
+    huff_distr(&distr, poem, size);
+    
+    print_huff_distr(&distr); // unsorted
+
+    sort_huff_distr_asc(&distr);
+
+    print_huff_distr(&distr); // sorted
 
     return 0;
 }
