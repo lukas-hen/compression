@@ -1,9 +1,9 @@
 CC=gcc
 CFLAGS=-Wall -O0 -I./include
 BUILD = ./build/
-DEPS = file.h
-OBJ = $(addprefix $(BUILD), file.o huff.o main.o)
-COMMAND = main
+DEPS = file.h shannon.h
+OBJ = $(addprefix $(BUILD), file.o shannon.o main.o)
+COMMAND = shan
 
 $(BUILD)%.o: %.c
 	$(CC) -c -o $@ $< $(CFLAGS)

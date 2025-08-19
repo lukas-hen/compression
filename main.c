@@ -3,7 +3,7 @@
 #include <assert.h> 
 
 #include "file.h"
-#include "huff.h"
+#include "shannon.h"
 
 char *get_argument(int argc, char **argv, unsigned char argn);
 
@@ -24,15 +24,17 @@ int main(int argc, char **argv) {
         return -1;
     }
     
-    CharDistribution distr;
-    huff_distr(&distr, poem, size);
+    ByteFrequencies bf;
+    byte_freqs_count(&bf, poem, size);
+    byte_freqs_sort_desc(&bf);
+    byte_freqs_print(&bf); // sorted
+
+    ByteProbabilityDistr bd;
+    byte_freqs_to_distr(&bd, &bf);
+    byte_distr_print(&bd);
+
+    printf("Entropy: %lf\n", byte_distr_entropy(&bd));
     
-    print_huff_distr(&distr); // unsorted
-
-    sort_huff_distr_asc(&distr);
-
-    print_huff_distr(&distr); // sorted
-
     return 0;
 }
 
