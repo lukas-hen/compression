@@ -1,13 +1,9 @@
 #ifndef SHANNON_H
 #define SHANNON_H
 
-#define TRUE 1
-#define FALSE 0
-
 #include <math.h>
 #include <stdio.h>
-
-typedef u_int8_t bool;
+#include <stdbool.h>
 
 typedef struct ByteFrequencies {
 
@@ -20,28 +16,22 @@ typedef struct ByteFrequencies {
 
 } ByteFrequencies;
 
-typedef struct ByteProbabilityDistr {
+typedef struct ByteSamplingDistribution {
     
     uint8_t size;
     bool sorted;
     uint8_t byte[UINT8_MAX];
     double probability[UINT8_MAX];
 
-} ByteProbabilityDistr;
+} ByteSamplingDistribution;
 
 
 void byte_freqs_count(ByteFrequencies *bf, unsigned char *data, size_t size);
 void byte_freqs_sort_desc(ByteFrequencies *bf);
 void byte_freqs_print(ByteFrequencies *bf);
-void byte_freqs_to_distr(ByteProbabilityDistr *bd, ByteFrequencies *bf);
-void byte_distr_print(ByteProbabilityDistr *bd);
-double byte_distr_entropy(ByteProbabilityDistr *bd);
-
-//void shan_encode(unsigned char *dst, unsigned char *src);
-//void shan_decode(unsigned char *dst, unsigned char *src);
-
-//void shan_tree_serialize(HuffmanTree *tree);
-//void shan_tree_deserialize(unsigned char *data);
+void byte_freqs_to_distr(ByteSamplingDistribution *bd, ByteFrequencies *bf);
+void byte_distr_print(ByteSamplingDistribution *bd);
+double byte_distr_entropy(ByteSamplingDistribution *bd);
 
 
 #endif

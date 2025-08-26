@@ -1,8 +1,8 @@
-CC=gcc
-CFLAGS=-Wall -O0 -I./include
+CC=clang
+CFLAGS=-Wall -Wextra -Wconversion -Wno-sign-conversion -O2 -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -I./include
 BUILD = ./build/
-DEPS = file.h shannon.h
-OBJ = $(addprefix $(BUILD), file.o shannon.o main.o)
+DEPS = file.h statistic.h util.h
+OBJ = $(addprefix $(BUILD), file.o statistic.o huff_heap.o huff_tree.o util.o main.o)
 COMMAND = shan
 
 $(BUILD)%.o: %.c

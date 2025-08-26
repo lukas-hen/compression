@@ -3,22 +3,16 @@
 /*
  * Read entire file into dynamically sized buffer.
  */
-FileReadResult f_readall(const char *file_name, unsigned char **data, size_t *out_size) {
+FileReadResult f_readall(FILE *fd, unsigned char **data, size_t *out_size) {
 
     size_t len = 0;
     size_t cap = INTIAL_CAPACITY;
- 
-    FILE *fp = fopen(file_name, "rb");
-    if (fp == NULL) {
-        perror("fopen() failed");
-        return FILE_READ_ERROR;
-    }
 
     // One byte extra for null terminator
     unsigned char *buf = (unsigned char *)malloc(cap + 1);
     if (buf == NULL) {
         perror("malloc() failed");
-        fclose(fp);
+        fclose(fd);
         return MEMORY_ALLOCATION_ERROR;
     }
 
@@ -27,14 +21,13 @@ FileReadResult f_readall(const char *file_name, unsigned char **data, size_t *ou
 
     for (;;) {
         space = cap - len;
-        n_read = fread(buf + len, 1, space, fp);
-        //printf("cap: %d, len: %d, n_read: %d, space: %d\n", cap, len, n_read, space);
+        n_read = fread(buf + len, 1, space, fd);
         len += n_read;
 
         if (n_read < space) {
-            if (ferror(fp)) {
+            if (ferror(fd)) {
                 free(buf);
-                fclose(fp);
+                fclose(fd);
                 perror("ferror() caught file error");
                 return FILE_READ_ERROR;
             }
@@ -50,7 +43,7 @@ FileReadResult f_readall(const char *file_name, unsigned char **data, size_t *ou
         if (!tmp) {
             
             free(buf);
-            fclose(fp);
+            fclose(fd);
             perror("realloc() failed");
             return MEMORY_ALLOCATION_ERROR;
         }
@@ -63,7 +56,7 @@ FileReadResult f_readall(const char *file_name, unsigned char **data, size_t *ou
     *out_size = len;
     *data = buf;
     
-    fclose(fp);
+    fclose(fd);
 
     return READ_SUCCESSFUL;
 }

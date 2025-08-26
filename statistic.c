@@ -1,30 +1,10 @@
 #include <stdint.h>
 #include <stdlib.h>
-#include "shannon.h"
+#include "statistic.h"
+#include "util.h"
 
 
-static void swapc(unsigned char *a, unsigned char *b) {
-    unsigned char tmp;
-    tmp = *a;
-    *a = *b;
-    *b = tmp;
-}
-
-static void swapi(int *a, int *b) {
-    
-    // int tmp;
-    // tmp = *a;
-    // *a = *b;
-    // *b = tmp;
-    
-    // High tech shit for fun
-    *a = *b ^ *a;
-    *b = *a ^ *b;
-    *a = *b ^ *a;
-
-}
-
-void byte_freqs_count(ByteFrequencies *bf, unsigned char *data, size_t size) {
+void byte_freqs_count(ByteFrequencies *bf, uint8_t *data, size_t size) {
     
     bf->total_num_bytes = size;
 
@@ -46,7 +26,7 @@ void byte_freqs_count(ByteFrequencies *bf, unsigned char *data, size_t size) {
     }
 
     bf->size = buf_size;
-    bf->sorted = FALSE;
+    bf->sorted = false;
 }
 
 void byte_freqs_sort_desc(ByteFrequencies *bf) {
@@ -60,8 +40,8 @@ void byte_freqs_sort_desc(ByteFrequencies *bf) {
         for(int i = 0; i < bf->size - 1; i++) {
         
             if(bf->freq[i] > bf->freq[i + 1]) {
-                swapi(&bf->freq[i], &bf->freq[i + 1]);
-                swapc(&bf->byte[i], &bf->byte[i + 1]);
+                swap(&bf->freq[i], &bf->freq[i + 1], 1);
+                swap(&bf->byte[i], &bf->byte[i + 1], 1);
                 swapped++;
             }
 
@@ -69,7 +49,7 @@ void byte_freqs_sort_desc(ByteFrequencies *bf) {
 
     } while (swapped > 0);
 
-    bf->sorted = TRUE;
+    bf->sorted = true;
 }
 
 void byte_freqs_print(ByteFrequencies *bf) {
@@ -82,11 +62,9 @@ void byte_freqs_print(ByteFrequencies *bf) {
     }
 }
 
-void byte_freqs_to_distr(ByteProbabilityDistr *bd, ByteFrequencies *bf) {
+void byte_freqs_to_distr(ByteSamplingDistribution *bd, ByteFrequencies *bf) {
     bd->size=bf->size;
     bd->sorted=bf->sorted;
-
-    printf("\n\n%d\n\n", bf->total_num_bytes);
 
     // set probabilities & copy bytes.
     for (int i = 0; i < bf->size; i++) {
@@ -96,23 +74,20 @@ void byte_freqs_to_distr(ByteProbabilityDistr *bd, ByteFrequencies *bf) {
 
 }
 
-double word_length(double probability) {
-    return ceil(-log2(probability));
-}
-
-void byte_distr_print(ByteProbabilityDistr *bd) {
+void byte_distr_print(ByteSamplingDistribution *bd) {
     for(int i = 0; i < bd->size; i++) {
         if (bd->byte[i] == '\n') {
-            printf("0x10 (\'\\n\'): %0.3f%%\tw_len=%0.3f\n", bd->probability[i]*100.0, word_length(bd->probability[i]));
+            printf("0x10 (\'\\n\'): %0.3f%%\n", bd->probability[i]*100.0);
         } else {
-            printf("0x%X (\'%c\') : %0.3f%%\tw_len=%0.3f\n", bd->byte[i], bd->byte[i], bd->probability[i]*100.0, word_length(bd->probability[i]));
+            printf("0x%X (\'%c\') : %0.3f%%\n", bd->byte[i], bd->byte[i], bd->probability[i]*100.0);
         }
     }
 }
 
-double byte_distr_entropy(ByteProbabilityDistr *bd) {
+double byte_distr_entropy(ByteSamplingDistribution *bd) {
     
     // H(X) := -1 * SUM for all xEX { p(x)*log2[p(x)] }
+    // This not a true entropy but appro
     
     float entropy = 0;
     double prob = 0;
@@ -123,7 +98,6 @@ double byte_distr_entropy(ByteProbabilityDistr *bd) {
     }
 
     return -entropy;
-
 }
 
 
