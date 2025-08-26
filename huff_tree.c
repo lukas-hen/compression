@@ -3,42 +3,43 @@
 #include <stdbool.h>
 #include "huffman.h"
 
-// HuffmanNode *huffman_node_create(double probability) {
-//     HuffmanNode *node = (HuffmanNode *) malloc(sizeof(HuffmanNode));
-//     node->probability = probability;
-//     node->symbol = NULL;
-//     node->left = NULL;
-//     node->right = NULL;
-// };
+HuffmanNode *huffman_node_create(double probability, uint8_t symbol) {
+    HuffmanNode *node = malloc(sizeof(HuffmanNode));
+    node->probability = probability;
+    node->symbol = symbol;
+    node->left = NULL;
+    node->right = NULL;
+};
 
-// HuffmanNode *huffman_tree_create(ByteSamplingDistribution *bd) {
+HuffmanNode *huffman_tree_create(ByteSamplingDistribution *bd) {
 
-//     assert(bd->sorted == true); // Only works if sorted ASC.
+    assert(bd->sorted == true); // Only works if sorted ASC.
 
-//     // loop through all pairs except last elem if odd.
-//     for(int i = 0; i < bd->size - 1; i += 2) {
+    MinHeap heap;
+    huff_minheap_init(&heap);
 
-//         HuffmanNode *lchild = huffman_node_create(bd->probability[i]);
-//         HuffmanNode *rchild = huffman_node_create(bd->probability[i + 1]);
-//         HuffmanNode *curr = huffman_node_create(bd->probability[i] + bd->probability[i + 1]);
+    // loop through all pairs except last elem if odd.
+    for(int i = 0; i < bd->size - 1; i += 2) {
 
-//         lchild->symbol = bd->byte[i];
-//         rchild->symbol = bd->byte[i + 1];
+        HuffmanNode *lchild = huffman_node_create(bd->probability[i], bd->byte[i]);
+        HuffmanNode *rchild = huffman_node_create(bd->probability[i + 1], bd->byte[i]);
+        HuffmanNode *curr = huffman_node_create(bd->probability[i] + bd->probability[i + 1], NULL);
         
-//         curr->left = lchild;
-//         curr->right = rchild;
+        // Set relationships.
+        curr->left = lchild;
+        curr->right = rchild;
 
-//     }
+    }
 
-//     if (bd->size % 2 != 0) {
-//         printf("Last unpaired element: %d\n", bd->size - 1);
-//     }
+    if (bd->size % 2 != 0) {
+        printf("Last unpaired element: %d\n", bd->size - 1);
+    }
 
-// };
+};
 
-// HuffmanNode *huffman_tree_free(HuffmanNode *root);
+HuffmanNode *huffman_tree_free(HuffmanNode *root);
 
-// Encoding huffman_get_encoding(uint8_t symbol);
+Encoding huffman_get_encoding(uint8_t symbol);
 
-// uint8_t *huffman_tree_serialize();
-// HuffmanNode *huffman_tree_deserialize();
+uint8_t *huffman_tree_serialize();
+HuffmanNode *huffman_tree_deserialize();

@@ -2,22 +2,28 @@
 #define HUFFMAN_H
 
 #include <stdint.h>
-#include <statistic.h>
+#include <stdbool.h>
+#include "statistic.h"
 
 // For now we know we wont exceed 256 as we are only using ascii symbols.
-#define INIT_MINHEAP_SIZE 256
+#define MINHEAP_SIZE 256
+
+#define MINHEAP_STATUS_SUCCESS 0
+#define MINHEAP_STATUS_EMPTY 1
+
+/*
+    HUFFMAN TREES
+*/
 
 typedef struct HuffmanNode {
     
     // only ascii symbols for now.
     // all nodes do not contain symbols - only leaves.
-    uint8_t symbol;
-
+    uint8_t symbol; // can be null
     double probability;
 
-    // struct HuffmanNode *parent; // might not be req.
-    // struct HuffmanNode *left;
-    // struct HuffmanNode *right;
+    struct HuffmanNode *left;
+    struct HuffmanNode *right;
 
 } HuffmanNode;
 
@@ -35,17 +41,22 @@ Encoding huffman_get_encoding(uint8_t symbol);
 uint8_t *huffman_tree_serialize();
 HuffmanNode *huffman_tree_deserialize();
 
+/*
+    MINHEAP
+*/
+
 typedef struct MinHeap {
-    HuffmanNode data[INIT_MINHEAP_SIZE];
+    
+    HuffmanNode data[MINHEAP_SIZE];
     uint8_t size;
     // Add capacity if allocating size dynamically.
+    
 } MinHeap;
 
 void huff_minheap_init(MinHeap *h);
 void huff_minheap_insert(MinHeap *h, HuffmanNode n);
-HuffmanNode huff_minheap_get_min(MinHeap *h);
-void huff_minheap_insert(MinHeap *h, HuffmanNode n);
-void huff_minheap_delete(MinHeap *h, HuffmanNode n);
 void huff_minheap_print(MinHeap* h);
+int huff_minheap_pop(HuffmanNode *node, MinHeap *h);
+HuffmanNode huff_minheap_get_min(MinHeap *h);
 
 #endif

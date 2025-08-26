@@ -34,41 +34,13 @@ int main(int argc, char **argv) {
     
     ByteFrequencies bf;
     byte_freqs_count(&bf, poem, size);
-    //byte_freqs_sort_desc(&bf);
-    //byte_freqs_print(&bf); // sorted now, prob better to always sort instead of relying side-effects
+    byte_freqs_sort_desc(&bf);
+    //byte_freqs_print(&bf);
 
     ByteSamplingDistribution bd;
     byte_freqs_to_distr(&bd, &bf);
-    byte_distr_print(&bd);
+    //byte_distr_print(&bd);
 
-    MinHeap h;
-
-    huff_minheap_init(&h);
-    for (int i = 0; i < 10; i++) {
-        
-        HuffmanNode node = {
-            .symbol = bd.byte[i],
-            .probability = bd.probability[i]
-        };
-
-        huff_minheap_insert(&h, node);
-    }
-    huff_minheap_print(&h);
-
-    for (int i = 0; i < 5; i++) {
-        
-        HuffmanNode node = {
-            .symbol = bd.byte[i],
-            .probability = bd.probability[i]
-        };
-        printf("Deleting: %c\n", node.symbol);
-        huff_minheap_delete(&h, node);
-    }
-
-    huff_minheap_print(&h);
-
-    HuffmanNode n = huff_minheap_get_min(&h);
-    printf("Char: '%c'", n.symbol);
     
     return 0;
 }
