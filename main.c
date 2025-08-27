@@ -35,12 +35,15 @@ int main(int argc, char **argv) {
     ByteFrequencies bf;
     byte_freqs_count(&bf, poem, size);
     byte_freqs_sort_desc(&bf);
-    //byte_freqs_print(&bf);
+    byte_freqs_print(&bf);
 
     ByteSamplingDistribution bd;
     byte_freqs_to_distr(&bd, &bf);
     //byte_distr_print(&bd);
 
+    HuffmanNode *root = huffman_tree_create(&bd);
+    //printf("%f\n", root->left->probability);
+    huffman_tree_to_dot_file("./resources/generated.dot", root);
     
     return 0;
 }

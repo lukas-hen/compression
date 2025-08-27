@@ -112,15 +112,19 @@ void huff_minheap_insert(MinHeap *h, HuffmanNode n) {
     h->size++; 
 };
 
-int huff_minheap_pop(HuffmanNode *node, MinHeap *h) {
+uint8_t huff_minheap_pop(MinHeap *h, HuffmanNode *node) {
     
     if (h->size == 0) {
-        return MINHEAP_STATUS_EMPTY;
+        return MINHEAP_STATUS_ERROR_EMPTY;
     }
 
     *node = huff_minheap_get_min(h);
     huff_minheap_delete_min(h);
     
+    if (h->size == 0) {
+        return MINHEAP_STATUS_LAST_ELEM;
+    }
+
     return MINHEAP_STATUS_SUCCESS;
 }
 
