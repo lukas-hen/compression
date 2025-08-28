@@ -32,20 +32,12 @@ typedef struct HuffmanNode {
 
 } HuffmanNode;
 
-typedef struct Encoding {
-    uint8_t bits;
-    uint8_t mask;
-} Encoding;
-
 HuffmanNode *huffman_tree_create(ByteSamplingDistribution *bd);
 HuffmanNode *huffman_tree_free(HuffmanNode *root);
 
-void huffman_tree_to_dot_file(char *file_path, HuffmanNode *root);
+void huffman_tree_to_dot_file(HuffmanNode *root, char *file_path);
 
-uint8_t huffman_get_symbol(Encoding symbol);
-Encoding huffman_get_encoding(uint8_t symbol);
-
-uint8_t *huffman_tree_serialize();
+size_t huffman_tree_serialize(HuffmanNode *root, uint8_t *byte_buffer, size_t buffer_size);
 HuffmanNode *huffman_tree_deserialize();
 
 /*

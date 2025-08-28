@@ -3,27 +3,52 @@
 #include <stdbool.h>
 #include "huffman.h"
 
-static void write_huffman_dot_nodes(HuffmanNode *root, FILE *fp) {
+#define TREE_SUCCESS (1 << 0)  
+#define TREE_EOT     (1 << 1)  // end of tree
+
+static inline void write_huffman_dot_nodes(HuffmanNode *root, FILE *fp) {
     if (root == NULL) {
         return;
     }
     
-    fprintf(fp, "    n%d [ label = \"%0.4f\" ];\n", root->id, root->probability);
+    fprintf(fp, "    n%d [ label = \"%c\" ];\n", root->id, root->symbol == NULL ? '.' : root->symbol);
 
     write_huffman_dot_nodes(root->left, fp);
     write_huffman_dot_nodes(root->right, fp);
 };
 
-static void write_huffman_dot_edges(HuffmanNode *root, FILE *fp) {
-    if (root == NULL || root->left == NULL || root->right == NULL) {
+static inline void write_huffman_dot_edges(HuffmanNode *root, FILE *fp) {
+    
+    if (root == NULL) {
+        return;
+    } else if (root->left == NULL && root->right == NULL) {
         return;
     }
 
-    fprintf(fp, "    n%d -> { n%d n%d };\n", root->id, root->left->id, root->right->id);
-
-    write_huffman_dot_edges(root->left, fp);
-    write_huffman_dot_edges(root->right, fp);
+    fprintf(fp, "    n%d -> { ", root->id);
+    if (root->left != NULL)
+        fprintf(fp, "n%d ", root->left->id);
+    if (root->right != NULL)
+        fprintf(fp, "n%d", root->right->id);
+    fprintf(fp, " };\n");
+    if (root->left != NULL)
+        write_huffman_dot_edges(root->left, fp);
+    if (root->right != NULL)
+        write_huffman_dot_edges(root->right, fp);
 };
+
+void huffman_tree_to_dot_file(HuffmanNode *root, char *file_path) {
+    FILE *fp = fopen(file_path, "w");
+
+    char *header = "digraph BST {\n    node [fontname=\"Arial\" ];\n";
+    char *padding = "    ";
+
+    fprintf(fp, header);    
+    write_huffman_dot_nodes(root, fp);
+    fprintf(fp, "\n");
+    write_huffman_dot_edges(root, fp);
+    fprintf(fp, "\n}");
+}
 
 HuffmanNode *huffman_tree_create(ByteSamplingDistribution *bd) {
 
@@ -86,24 +111,53 @@ HuffmanNode *huffman_tree_create(ByteSamplingDistribution *bd) {
     return n1;
 };
 
-void huffman_tree_to_dot_file(char *file_path, HuffmanNode *root) {
+static void huffman_tree_traverse_pre_order(HuffmanNode *node, int target_steps, uint8_t *status, HuffmanNode **cur, int current_step) {
     
-    FILE *fp = fopen(file_path, "w");
+    if (node == NULL) {
+        *status = TREE_EOT;
+        return;
+    }
 
-    char *header = "digraph BST {\n    node [fontname=\"Arial\" ];\n";
-    char *padding = "    ";
+    // Keep changing the pointer from outside scope to "current" node.
+    //printf("%d ", node->id);
+    *cur = node;
 
-    fprintf(fp, header);    
-    write_huffman_dot_nodes(root, fp);
-    fprintf(fp, "\n");
-    write_huffman_dot_edges(root, fp);
-    fprintf(fp, "\n}");
+    if(current_step == target_steps) {
+        *status = TREE_SUCCESS;
+        return;
+    }
+
+    if (*status == TREE_EOT)
+        return;
+
+    if (node->left != NULL)
+        huffman_tree_traverse_pre_order(node->left, target_steps, status, cur, ++current_step);
+
+    // If we break recursion with EOT, no further recursion should happen.
+    if (*status == TREE_EOT)
+        return;
+
+    if (node->right != NULL)
+        huffman_tree_traverse_pre_order(node->right, target_steps, status, cur, ++current_step);
 }
+
+size_t huffman_tree_serialize(HuffmanNode *root, uint8_t *byte_buffer, size_t buffer_size) {
+    
+    HuffmanNode *cur;
+    uint8_t status;
+
+    printf("\n\n[ ");
+    //for(int i = 0; i < 100; i++) {
+        huffman_tree_traverse_pre_order(root, 8, &status, &cur, 0);
+        printf("%c", cur->symbol);
+        // if (i < 99)
+        //     printf(", ");
+        fflush(stdout);
+    //}
+    printf(" ]\n\n");
+    return 0;
+};
 
 
 HuffmanNode *huffman_tree_free(HuffmanNode *root);
-
-Encoding huffman_get_encoding(uint8_t symbol);
-
-uint8_t *huffman_tree_serialize();
 HuffmanNode *huffman_tree_deserialize();

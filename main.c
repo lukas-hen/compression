@@ -1,6 +1,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <assert.h> 
+#include <stdint.h>
 
 #include "file.h"
 #include "statistic.h"
@@ -35,15 +36,19 @@ int main(int argc, char **argv) {
     ByteFrequencies bf;
     byte_freqs_count(&bf, poem, size);
     byte_freqs_sort_desc(&bf);
-    byte_freqs_print(&bf);
+    //byte_freqs_print(&bf);
 
     ByteSamplingDistribution bd;
-    byte_freqs_to_distr(&bd, &bf);
+    byte_freqs_to_distr(&bf, &bd);
     //byte_distr_print(&bd);
 
     HuffmanNode *root = huffman_tree_create(&bd);
     //printf("%f\n", root->left->probability);
-    huffman_tree_to_dot_file("./resources/generated.dot", root);
+    huffman_tree_to_dot_file(root, "./resources/generated.dot");
+
+    uint8_t byte_buffer[8];
+    size_t buffer_size = 8;
+    huffman_tree_serialize(root, &byte_buffer, buffer_size);
     
     return 0;
 }

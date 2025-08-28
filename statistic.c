@@ -62,7 +62,7 @@ void byte_freqs_print(ByteFrequencies *bf) {
     }
 }
 
-void byte_freqs_to_distr(ByteSamplingDistribution *bd, ByteFrequencies *bf) {
+void byte_freqs_to_distr(ByteFrequencies *bf, ByteSamplingDistribution *bd) {
     bd->size=bf->size;
     bd->sorted=bf->sorted;
 

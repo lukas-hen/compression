@@ -25,13 +25,11 @@ typedef struct ByteSamplingDistribution {
 
 } ByteSamplingDistribution;
 
-
 void byte_freqs_count(ByteFrequencies *bf, unsigned char *data, size_t size);
 void byte_freqs_sort_desc(ByteFrequencies *bf);
 void byte_freqs_print(ByteFrequencies *bf);
-void byte_freqs_to_distr(ByteSamplingDistribution *bd, ByteFrequencies *bf);
+void byte_freqs_to_distr(ByteFrequencies *bf, ByteSamplingDistribution *bd);
 void byte_distr_print(ByteSamplingDistribution *bd);
 double byte_distr_entropy(ByteSamplingDistribution *bd);
-
 
 #endif
