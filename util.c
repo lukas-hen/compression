@@ -8,3 +8,9 @@ void swap(void *a, void *b, size_t size) {
     memcpy(a, b, size);
     memcpy(b, temp, size);
 }
+
+void swapp(void **a, void **b) {
+    void *tmp = *a;
+    *a = *b;
+    *b = tmp;
+}

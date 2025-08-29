@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include "huffman.h"
+#include "util.h"
 
 #define TREE_SUCCESS (1 << 0)  
 #define TREE_EOT     (1 << 1)  // end of tree
@@ -60,16 +61,18 @@ HuffmanNode *huffman_tree_create(ByteSamplingDistribution *bd) {
     // add all nodes to heap.
     int i; // used later aswell. keep incrementing when creating tree.
     for(i = 0; i < bd->size; i++) {
+        
+        HuffmanNode *node = malloc(sizeof(HuffmanNode));
 
-        HuffmanNode node = {
-            .id = i,
-            .symbol = bd->byte[i],
-            .probability = bd->probability[i],
-            .left = NULL,
-            .right = NULL
-        };
+        node->id = i;
+        node->symbol = bd->byte[i];
+        node->probability = bd->probability[i];
+        node->left = NULL;
+        node->right = NULL;
+        node->parent = NULL;
+        node->is_l_child = NULL; // defaults to 0 which is false. Should always be explicitly set.
 
-        huff_minheap_insert(&heap, node); // copy
+        huff_minheap_insert(&heap, node);
     }
 
     uint8_t minheap_op_status = MINHEAP_STATUS_SUCCESS;
@@ -79,11 +82,10 @@ HuffmanNode *huffman_tree_create(ByteSamplingDistribution *bd) {
         minheap_op_status != MINHEAP_STATUS_ERROR_EMPTY || 
         minheap_op_status != MINHEAP_STATUS_LAST_ELEM
         ) {
-        
+
         // Heap alloc nodes now as these need to persist past the current scope.
         // Arena alloc would prob be a better approach.
         n1 = malloc(sizeof(HuffmanNode));
-        n2 = malloc(sizeof(HuffmanNode));
 
         minheap_op_status = huff_minheap_pop(&heap, n1);
         if(minheap_op_status == MINHEAP_STATUS_LAST_ELEM) {
@@ -92,17 +94,26 @@ HuffmanNode *huffman_tree_create(ByteSamplingDistribution *bd) {
             // Finish early, only one node left this iteration.
         }
 
+        n2 = malloc(sizeof(HuffmanNode));
         minheap_op_status = huff_minheap_pop(&heap, n2);
         //printf("'%c', '%c'\n", n1->symbol, n2->symbol);
 
-        // Create composite/parent node.
-        HuffmanNode parent = {
-            .id = ++i,
-            .probability = n1->probability + n2->probability,
-            .symbol = NULL,
-            .left = n1, // n1 < n2
-            .right = n2,
-        };
+        HuffmanNode *parent = malloc(sizeof(HuffmanNode));
+        
+        // Perhaps break-out to function.
+        parent->id = ++i;
+        parent->probability = n1->probability + n2->probability;
+        parent->symbol = NULL;
+        parent->left = n1;
+        parent->right = n2;
+        parent->parent = NULL;
+        parent->is_l_child = NULL;
+
+        n1->parent = parent;
+        n1->is_l_child = true;
+        
+        n2->parent = parent;
+        n2->is_l_child = false;
     
         // Put parent on heap.
         huff_minheap_insert(&heap, parent);
@@ -111,50 +122,71 @@ HuffmanNode *huffman_tree_create(ByteSamplingDistribution *bd) {
     return n1;
 };
 
-static void huffman_tree_traverse_pre_order(HuffmanNode *node, int target_steps, uint8_t *status, HuffmanNode **cur, int current_step) {
+// Depth-first traversal
+// Returns TREE_SUCCESS if successfully taking n_steps
+// Returns TREE_EOT if reaching the end before
+uint8_t huffman_tree_traverse(HuffmanNode **root, int n_steps) {
+
+    if (root == NULL)
+        return TREE_EOT;
+
+    Stack s;
+    huff_stack_init(&s);
+    huff_stack_push(&s, *root);
+
+    HuffmanNode *cur;
+    for (int i = 0; i < n_steps; i++) {
+
+        cur = huff_stack_pop(&s);
+        if (cur == NULL) // Tree ended before n_steps.
+            return TREE_EOT;
+
+        if (cur->right != NULL)
+            huff_stack_push(&s, cur->right);
+        if (cur->left != NULL)
+            huff_stack_push(&s, cur->left);
+
+    }
+
+    *root = cur;
+    return TREE_SUCCESS;
+ 
+}
+
+
+void huffman_tree_get_prefix(HuffmanNode *node, uint8_t *out, size_t size) {
     
     if (node == NULL) {
-        *status = TREE_EOT;
         return;
     }
-
-    // Keep changing the pointer from outside scope to "current" node.
-    //printf("%d ", node->id);
-    *cur = node;
-
-    if(current_step == target_steps) {
-        *status = TREE_SUCCESS;
-        return;
-    }
-
-    if (*status == TREE_EOT)
-        return;
-
-    if (node->left != NULL)
-        huffman_tree_traverse_pre_order(node->left, target_steps, status, cur, ++current_step);
-
-    // If we break recursion with EOT, no further recursion should happen.
-    if (*status == TREE_EOT)
-        return;
-
-    if (node->right != NULL)
-        huffman_tree_traverse_pre_order(node->right, target_steps, status, cur, ++current_step);
+    
+    int i = size - 1;
+    
+    do {
+        if(node->is_l_child) {
+            out[i] = '1';
+        } else {
+            out[i] = '2';
+        }
+        size--;
+    } while(node->parent != NULL && size > 1);
 }
+
+
 
 size_t huffman_tree_serialize(HuffmanNode *root, uint8_t *byte_buffer, size_t buffer_size) {
     
-    HuffmanNode *cur;
-    uint8_t status;
+    huffman_tree_traverse(&root, 4);
+    
+    printf("Symbol: %c\t", root->symbol);
+    printf("Symbol: %c\t", root->parent->id);
+    //printf("Symbol: %c\t", root->parent->parent->id);
 
-    printf("\n\n[ ");
-    //for(int i = 0; i < 100; i++) {
-        huffman_tree_traverse_pre_order(root, 8, &status, &cur, 0);
-        printf("%c", cur->symbol);
-        // if (i < 99)
-        //     printf(", ");
-        fflush(stdout);
-    //}
-    printf(" ]\n\n");
+    uint8_t buf[10] = { 0 };
+    huffman_tree_get_prefix(root, &buf, 10);
+    printf("Symbol: %c\t", root->symbol);
+    //printf("Prefix: %d\n", buf);
+
     return 0;
 };
 

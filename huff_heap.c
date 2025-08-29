@@ -41,14 +41,14 @@ static void heapify(MinHeap *h, int i) {
 
     // If the left child is smaller than this element, it is
     // the smallest
-    if (left < h->size && h->data[left].probability < h->data[i].probability)
+    if (left < h->size && h->data[left]->probability < h->data[i]->probability)
         smallest = left; 
     
     // Similarly for the right, but we are updating the smallest element
     // so that it will definitely give the least element of the subtree
-    if (right < h->size && h->data[right].probability < h->data[smallest].probability)
+    if (right < h->size && h->data[right]->probability < h->data[smallest]->probability)
         smallest = right; 
-
+    
     // Now if the current element is not the smallest,
     // swap with the current element. The min heap property
     // is now satisfied for this subtree. We now need to
@@ -56,7 +56,7 @@ static void heapify(MinHeap *h, int i) {
     // the point at which there will be no change!
     if (smallest != i) 
     { 
-        swap(&h->data[i], &h->data[smallest], sizeof(HuffmanNode));
+        swapp(&h->data[i], &h->data[smallest]);
         heapify(h, smallest); 
     }
 
@@ -68,7 +68,7 @@ static void huff_minheap_delete_min(MinHeap *h) {
         return;
 
     int size = h->size;
-    HuffmanNode last_element = h->data[size-1];
+    HuffmanNode *last_element = h->data[size-1];
     
     // Update root value with the last element
     h->data[0] = last_element;
@@ -92,10 +92,10 @@ void huff_minheap_init(MinHeap *h) {
     h->size = 0;
 }
 
-void huff_minheap_insert(MinHeap *h, HuffmanNode n) {
+void huff_minheap_insert(MinHeap *h, HuffmanNode *n) {
     
     if (h->size == MINHEAP_SIZE - 1) {
-        fprintf(stderr, "Cannot insert ASCII(%u). Heap is already full!\n", n.symbol);
+        fprintf(stderr, "Cannot insert ASCII(%u). Heap is already full!\n", n->symbol);
     }
 
     h->data[h->size] = n;
@@ -104,8 +104,8 @@ void huff_minheap_insert(MinHeap *h, HuffmanNode n) {
     
     // As long as you aren't in the root node, and while the 
     // parent probability is greater, we swap.
-    while (cur > 0 && h->data[cur].probability < h->data[parent(cur)].probability) {
-        swap(&h->data[cur], &h->data[parent(cur)], sizeof(HuffmanNode));
+    while (cur > 0 && h->data[cur]->probability < h->data[parent(cur)]->probability) {
+        swapp(&h->data[cur], &h->data[parent(cur)]);
         cur = parent(cur);
     }
     
@@ -117,10 +117,10 @@ uint8_t huff_minheap_pop(MinHeap *h, HuffmanNode *node) {
     if (h->size == 0) {
         return MINHEAP_STATUS_ERROR_EMPTY;
     }
-
-    *node = huff_minheap_get_min(h);
-    huff_minheap_delete_min(h);
     
+    *node = *huff_minheap_get_min(h);
+
+    huff_minheap_delete_min(h);
     if (h->size == 0) {
         return MINHEAP_STATUS_LAST_ELEM;
     }
@@ -128,7 +128,7 @@ uint8_t huff_minheap_pop(MinHeap *h, HuffmanNode *node) {
     return MINHEAP_STATUS_SUCCESS;
 }
 
-HuffmanNode huff_minheap_get_min(MinHeap *h) {
+HuffmanNode *huff_minheap_get_min(MinHeap *h) {
     return h->data[0];
 };
 
@@ -137,7 +137,7 @@ void huff_minheap_print(MinHeap* h) {
     // inorder traversal of the tree
     printf("Min Heap:\n");
     for (int i=0; i<h->size; i++) {
-        printf("0x%X ('%c') -> ", h->data[i].symbol, h->data[i].symbol);
+        printf("0x%X ('%c') -> ", h->data[i]->symbol, h->data[i]->symbol);
     }
     printf("\n");
 }

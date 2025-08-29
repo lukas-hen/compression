@@ -12,6 +12,8 @@
 #define MINHEAP_STATUS_LAST_ELEM (1 << 1) 
 #define MINHEAP_STATUS_ERROR_EMPTY (1 << 2)
 
+#define STACK_SIZE 1024
+
 /*
     HUFFMAN TREES
 */
@@ -29,6 +31,10 @@ typedef struct HuffmanNode {
 
     struct HuffmanNode *left;
     struct HuffmanNode *right;
+    
+    // For calculating prefix codes bottom-up.
+    struct HuffmanNode *parent;
+    bool is_l_child; // If THIS node is an lchild. If not it is an rchild.
 
 } HuffmanNode;
 
@@ -46,16 +52,27 @@ HuffmanNode *huffman_tree_deserialize();
 
 typedef struct MinHeap {
     
-    HuffmanNode data[MINHEAP_SIZE];
+    HuffmanNode *data[MINHEAP_SIZE];
     uint8_t size;
     // Add capacity if allocating size dynamically.
     
 } MinHeap;
 
 void huff_minheap_init(MinHeap *h);
-void huff_minheap_insert(MinHeap *h, HuffmanNode n);
+void huff_minheap_insert(MinHeap *h, HuffmanNode *n);
 void huff_minheap_print(MinHeap* h);
 uint8_t huff_minheap_pop(MinHeap *h, HuffmanNode *node);
-HuffmanNode huff_minheap_get_min(MinHeap *h);
+HuffmanNode *huff_minheap_get_min(MinHeap *h);
+
+
+// Fixed size ok for now.
+typedef struct Stack {
+    HuffmanNode *data[STACK_SIZE];
+    size_t size;
+} Stack;
+
+void huff_stack_init(Stack *s);
+void huff_stack_push(Stack *s, HuffmanNode *n);
+HuffmanNode *huff_stack_pop(Stack *s);
 
 #endif
