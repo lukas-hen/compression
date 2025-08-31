@@ -1,11 +1,11 @@
 #ifndef FILE_H
 #define FILE_H
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<stdint.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#define INTIAL_CAPACITY 240 // bytes
+#define INTIAL_CAPACITY 240  // bytes
 
 typedef enum FileReadResult {
     READ_SUCCESSFUL,
@@ -19,7 +19,6 @@ typedef enum FileReadResult {
  * Sets data pointer to point to allocated buffer.
  * Note that this moves ownership to whoever passed the pointer.
  */
-FileReadResult f_readall(FILE *fd, unsigned char **data, size_t *out_size);
-
+FileReadResult f_readall(FILE* fd, unsigned char** data, size_t* out_size);
 
 #endif
