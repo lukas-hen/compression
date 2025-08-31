@@ -1,6 +1,6 @@
 CC=clang
 
-PROG_NAME := compress
+PROG_NAME := compr
 
 SRC_DIR := src
 INCLUDE_DIR := include
@@ -34,11 +34,11 @@ $(BIN_DIR) $(OBJ_DIR):
 
 # Below are just for lazyness, not building.
 
-install: main
-	sudo cp ./main /usr/local/bin/$(COMMAND) && chmod +x /usr/local/bin/$(COMMAND)
+install: $(BIN_DIR)/$(PROG_NAME)
+	sudo cp $(BIN_DIR)/$(PROG_NAME) /usr/local/bin/$(PROG_NAME) && chmod +x /usr/local/bin/$(PROG_NAME)
 
 uninstall:
-	sudo rm /usr/local/bin/$(COMMAND)
+	sudo rm /usr/local/bin/$(PROG_NAME)
 
 clean:
 	@$(RM) -rv $(BIN_DIR) $(OBJ_DIR)

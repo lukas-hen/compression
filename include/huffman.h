@@ -13,8 +13,6 @@
 #define MINHEAP_STATUS_LAST_ELEM (1 << 1)
 #define MINHEAP_STATUS_ERROR_EMPTY (1 << 2)
 
-#define STACK_SIZE 1024
-
 /*
     HUFFMAN TREES
 */
@@ -63,11 +61,8 @@ void huff_minheap_print(MinHeap* h);
 HuffmanNode* huff_minheap_pop(MinHeap* h);
 HuffmanNode* huff_minheap_get_min(MinHeap* h);
 
-typedef struct Stack Stack;
-
-Stack* huff_stack_create();
-void huff_stack_push(Stack* s, HuffmanNode* n);
-HuffmanNode* huff_stack_pop(Stack* s);
-void huff_stack_destroy(Stack* s);
+void huff_stack_reset();
+void huff_stack_push(HuffmanNode* n);
+HuffmanNode* huff_stack_pop();
 
 #endif

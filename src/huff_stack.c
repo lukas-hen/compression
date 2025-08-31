@@ -1,33 +1,30 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "huffman.h"
 #include "util.h"
+
+#define STACK_SIZE 1024
+
+/*
+ * Global stack/state-machine.
+ * Used to store temporary state when traversing a tree.
+ */
 
 typedef struct Stack {
     HuffmanNode* data[STACK_SIZE];
     size_t size;
 } Stack;
 
-Stack* huff_stack_create() {
-    Stack* s = malloc(sizeof(Stack));
-    s->size = 0;
-    return s;
-}
+Stack _s;
 
-void huff_stack_destroy(Stack* s) { free(s); };
+void huff_stack_reset() { _s.size = 0; }
 
-void huff_stack_push(Stack* s, HuffmanNode* n) {
-    if (s->size == 0) {
-        s->data[0] = n;
-    }
+void huff_stack_push(HuffmanNode* n) { _s.data[_s.size++] = n; };
 
-    s->data[++s->size] = n;
-};
-
-HuffmanNode* huff_stack_pop(Stack* s) {
-    if (s->size == 0) {
+HuffmanNode* huff_stack_pop() {
+    if (_s.size <= 0) {
         return NULL;
     }
-
-    return s->data[s->size--];
+    return _s.data[--_s.size];
 }

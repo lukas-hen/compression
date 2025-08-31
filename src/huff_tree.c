@@ -118,24 +118,24 @@ HuffmanNode* huffman_tree_create(ByteSamplingDistribution* bd) {
 // Returns TREE_SUCCESS if successfully taking n_steps
 // Returns TREE_EOT if reaching the end before
 uint8_t huffman_tree_traverse(HuffmanNode** root, int n_steps) {
-    if (root == NULL) return TREE_EOT;
-
-    Stack* s = huff_stack_create();
-    huff_stack_push(&s, *root);
+    if (*root == NULL) return TREE_EOT;
+    // Stack* s = huff_stack_create();
 
     HuffmanNode* cur;
-    for (int i = 0; i < n_steps; i++) {
-        cur = huff_stack_pop(&s);
+    for (int i = 0; i < n_steps;
+         i++) {  // inclusive bound as 1 step = root otherwise.
+        cur = huff_stack_pop();
         if (cur == NULL)  // Tree ended before n_steps.
             return TREE_EOT;
 
-        if (cur->right != NULL) huff_stack_push(&s, cur->right);
-        if (cur->left != NULL) huff_stack_push(&s, cur->left);
+        // Inverse order as we are working w a stack.
+        if (cur->right != NULL) huff_stack_push(cur->right);
+        if (cur->left != NULL) huff_stack_push(cur->left);
     }
 
     *root = cur;
 
-    huff_stack_destroy(s);
+    // huff_stack_destroy(s);
 
     return TREE_SUCCESS;
 }
@@ -166,17 +166,24 @@ void huffman_tree_print_prefix(HuffmanNode* node) {
       {
             printf("%c", reverse_buf[i - 1 - j]);
         }
-    printf("\n");
 }
 
 size_t huffman_tree_serialize(HuffmanNode* root, uint8_t* byte_buffer,
                               size_t buffer_size) {
-    huffman_tree_traverse(&root, 6);
-    huffman_tree_print_prefix(root);
-    printf("Node Sz: %d\n", sizeof(HuffmanNode));
+    huff_stack_reset();
+    huff_stack_push(root);
+
+    while (huffman_tree_traverse(&root, 1) != TREE_EOT) {
+        if (root->symbol != NULL && root->symbol != '\n') {
+            printf("%c: ", root->symbol);
+            huffman_tree_print_prefix(root);
+            printf("\n");
+        }
+    }
 
     return 0;
 };
 
-HuffmanNode* huffman_tree_free(HuffmanNode* root);
 HuffmanNode* huffman_tree_deserialize();
+
+HuffmanNode* huffman_tree_free(HuffmanNode* root);

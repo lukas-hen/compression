@@ -6,6 +6,7 @@
 #include "file.h"
 #include "huffman.h"
 #include "statistic.h"
+#include "util.h"
 
 char* get_argument(int argc, char** argv, unsigned char argn);
 
@@ -41,7 +42,6 @@ int main(int argc, char** argv) {
     // byte_distr_print(&bd);
 
     HuffmanNode* root = huffman_tree_create(&bd);
-    // printf("%f\n", root->left->probability);
     huffman_tree_to_dot_file(root, "./resources/generated.dot");
 
     uint8_t byte_buffer[8];
