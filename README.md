@@ -74,6 +74,11 @@ bin/compr -d resources/compressed.huff resources/output.txt
 - `resources/compressed.huff`: The compressed file to decompress.
 - `resources/output.txt`: The output file matching the original file.
 
+### Generate Huffman Tree Visualization
+When compressing a file, the program automatically generates a `.dot` file representing the Huffman Tree structure. By default, this file is saved in the `resources/` directory.
+
+After running this command, the file `resources/generated.dot` will contain the visual representation of the Huffman Tree that can be opened with graphviz.
+
 ### Debugging
 Compile the program with debug symbols for troubleshooting:
 ```bash
