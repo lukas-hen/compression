@@ -16,7 +16,7 @@ typedef struct Stack {
     size_t size;
 } Stack;
 
-Stack _s;
+static Stack _s;
 
 void huff_stack_reset() { _s.size = 0; }
 

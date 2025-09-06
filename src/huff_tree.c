@@ -2,25 +2,26 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include "g_alloc.h"
 #include "huffman.h"
 #include "util.h"
 
 #define TREE_SUCCESS (1 << 0)
 #define TREE_EOT (1 << 1)  // end of tree
 
-static inline void write_huffman_dot_nodes(HuffmanNode* root, FILE* fp) {
+static GroupedAllocator _g_alloc;
+
+static void write_huffman_dot_nodes(HuffmanNode* root, FILE* fp) {
     if (root == NULL) {
         return;
     }
-
     fprintf(fp, "    n%d [ label = \"%c\" ];\n", root->id,
             root->symbol == NULL ? '.' : root->symbol);
-
     write_huffman_dot_nodes(root->left, fp);
     write_huffman_dot_nodes(root->right, fp);
 };
 
-static inline void write_huffman_dot_edges(HuffmanNode* root, FILE* fp) {
+static void write_huffman_dot_edges(HuffmanNode* root, FILE* fp) {
     if (root == NULL) {
         return;
     } else if (root->left == NULL && root->right == NULL) {
@@ -40,7 +41,6 @@ void huffman_tree_to_dot_file(HuffmanNode* root, char* file_path) {
 
     char* header = "digraph BST {\n    node [fontname=\"Arial\" ];\n";
     char* padding = "    ";
-
     fprintf(fp, header);
     write_huffman_dot_nodes(root, fp);
     fprintf(fp, "\n");
@@ -49,6 +49,9 @@ void huffman_tree_to_dot_file(HuffmanNode* root, char* file_path) {
 }
 
 HuffmanNode* huffman_tree_create(ByteSamplingDistribution* bd) {
+    // init grouped alloc.
+    g_alloc_init(&_g_alloc, 64);
+
     // Heap is only used locally in this func.
     // Stack/current scope lifetime is enough.
     MinHeap heap;
@@ -57,7 +60,7 @@ HuffmanNode* huffman_tree_create(ByteSamplingDistribution* bd) {
     // add all nodes to heap.
     int i;  // used later aswell. keep incrementing when creating tree.
     for (i = 0; i < bd->size; i++) {
-        HuffmanNode* node = malloc(sizeof(HuffmanNode));
+        HuffmanNode* node = g_alloc(&_g_alloc, sizeof(HuffmanNode));
 
         node->id = i;
         node->symbol = bd->byte[i];
@@ -89,7 +92,7 @@ HuffmanNode* huffman_tree_create(ByteSamplingDistribution* bd) {
         }
         cur = n2;
 
-        HuffmanNode* parent = malloc(sizeof(HuffmanNode));
+        HuffmanNode* parent = g_alloc(&_g_alloc, sizeof(HuffmanNode));
 
         // Perhaps break-out to function.
         parent->id = ++i;
@@ -162,14 +165,12 @@ void huffman_tree_print_prefix(HuffmanNode* node) {
     } while (node->parent != NULL &&
              i < size - 1);  // -1 only for strings. Need delim.
 
-    for (int j = 0; j < i; j++)
-      {
-            printf("%c", reverse_buf[i - 1 - j]);
-        }
+    for (int j = 0; j < i; j++) {
+        printf("%c", reverse_buf[i - 1 - j]);
+    }
 }
 
-size_t huffman_tree_serialize(HuffmanNode* root, uint8_t* byte_buffer,
-                              size_t buffer_size) {
+size_t huffman_tree_serialize(HuffmanNode* root) {
     huff_stack_reset();
     huff_stack_push(root);
 
@@ -186,4 +187,4 @@ size_t huffman_tree_serialize(HuffmanNode* root, uint8_t* byte_buffer,
 
 HuffmanNode* huffman_tree_deserialize();
 
-HuffmanNode* huffman_tree_free(HuffmanNode* root);
+HuffmanNode* huffman_tree_free() { g_free(&_g_alloc); };

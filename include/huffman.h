@@ -36,12 +36,11 @@ typedef struct HuffmanNode {
 } HuffmanNode;
 
 HuffmanNode* huffman_tree_create(ByteSamplingDistribution* bd);
-HuffmanNode* huffman_tree_free(HuffmanNode* root);
+HuffmanNode* huffman_tree_free();
 
 void huffman_tree_to_dot_file(HuffmanNode* root, char* file_path);
 
-size_t huffman_tree_serialize(HuffmanNode* root, uint8_t* byte_buffer,
-                              size_t buffer_size);
+size_t huffman_tree_serialize(HuffmanNode* root);
 HuffmanNode* huffman_tree_deserialize();
 
 /*

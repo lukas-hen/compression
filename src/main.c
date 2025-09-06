@@ -44,9 +44,8 @@ int main(int argc, char** argv) {
     HuffmanNode* root = huffman_tree_create(&bd);
     huffman_tree_to_dot_file(root, "./resources/generated.dot");
 
-    uint8_t byte_buffer[8];
-    size_t buffer_size = 8;
-    huffman_tree_serialize(root, &byte_buffer, buffer_size);
+    huffman_tree_serialize(root);
+    huffman_tree_free();
 
     return 0;
 }

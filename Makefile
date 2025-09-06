@@ -31,7 +31,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 
 $(BIN_DIR) $(OBJ_DIR):
 	mkdir -p $@
-
+	
+debug:
+	$(CC) $(CPPFLAGS) -g $(SRC_DIR)/*.c -o $@
 # Below are just for lazyness, not building.
 
 install: $(BIN_DIR)/$(PROG_NAME)
@@ -41,7 +43,7 @@ uninstall:
 	sudo rm /usr/local/bin/$(PROG_NAME)
 
 clean:
-	@$(RM) -rv $(BIN_DIR) $(OBJ_DIR)
+	@$(RM) -rv $(BIN_DIR) $(OBJ_DIR) && $(RM) -r debug debug.*
 
 run:
 	./main
