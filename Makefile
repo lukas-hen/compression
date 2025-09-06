@@ -51,4 +51,4 @@ run:
 format:
 	clang-format -i --style=file $(SRC) $(HEADER)
 
-.PHONY: all clean run install uninstall format
+.PHONY: all clean run install uninstall format debug
