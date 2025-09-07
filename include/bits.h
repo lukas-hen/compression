@@ -13,7 +13,7 @@ typedef struct BitBuffer {
 BitBuffer* bb_create(size_t size_bytes);
 void bb_write(BitBuffer* b, uint64_t bits, int n_bits);
 void bb_to_file(BitBuffer* b, FILE* fp);
-void bb_free(BitBuffer* b, uint64_t bits, uint8_t n_bits);
+void bb_free(BitBuffer* b);
 void bb_show(BitBuffer* b);
 
 #endif

@@ -1,10 +1,9 @@
 #include "bits.h"
 
+#include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#define LEFTMOST_BIT_U64 ((uint64_t)1 << 63)
 
 BitBuffer* bb_create(size_t size_bytes) {
     BitBuffer* b = malloc(sizeof(BitBuffer));
@@ -14,14 +13,16 @@ BitBuffer* bb_create(size_t size_bytes) {
     return b;
 }
 
-static inline uint64_t byte_idx(size_t pos) { return floor(pos / 8); }
+static inline uint64_t byte_idx(size_t pos) {
+    return floor(pos / 8);
+}  // TODO: Fix this cast form double -> uint64
 
 static inline uint8_t bit_idx(size_t pos) { return pos % 8; }
 
 void bb_write(BitBuffer* b, uint64_t bits, int n_bits) {
     for (int i = 0; i < n_bits; i++) {
-        // printf("byte: %d, bit: %d\n", byte_idx(b->pos), bit_idx(b->pos));
-        b->bytes[byte_idx(b->pos)] |= (bits & (1 << (8 - bit_idx(b->pos) - 1)));
+        b->bytes[byte_idx(b->pos)] |=
+            (bits & (1 << (CHAR_BIT - bit_idx(b->pos) - 1)));
         b->pos++;
     }
 };
@@ -36,4 +37,7 @@ void bb_show(BitBuffer* b) {
     }
     printf("\n");
 }
-void bb_free(BitBuffer* b, uint64_t bits, uint8_t n_bits);
+void bb_free(BitBuffer* b) {
+    free(b->bytes);
+    free(b);
+};

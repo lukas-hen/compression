@@ -59,10 +59,9 @@ int main(int argc, char** argv) {
     bb_write(b, 0, 3);
     bb_write(b, UINT64_MAX, 4);
     bb_write(b, 0, 4);
-
     bb_write(b, 0xFFFFFFFF, 4 * 8 - 1);
-
     bb_show(b);
+    bb_free(b);
 
     return 0;
 }
