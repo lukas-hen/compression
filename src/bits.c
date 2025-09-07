@@ -47,31 +47,3 @@ static inline uint64_t get_bitmask(uint64_t n_bits) {
 
     return bits;
 }
-
-// void bits_writer_init(BitIo *b, FILE * fp) {
-//     b->fp = fp;
-//     b->bit_remainder = 0;
-//     b->bit_remainder_sz = 0;
-// }
-
-// void bits_write(BitIo *b, uint64_t bits, uint64_t n_bits) {
-//     size_t n_prev_remaining_bits = b->bit_remainder_sz;
-//     size_t n_remaining_bits = (n_prev_remaining_bits + n_bits) % 8;
-//     size_t bytes_to_write = floor((n_prev_remaining_bits +
-//     n_bits)/(uint64_t)8);
-
-//     uint64_t prev_remainder_bitmask = get_bitmask(n_prev_remaining_bits);
-//     uint64_t remainder_bitmask = get_bitmask(n_remaining_bits) >>
-//     (bytes_to_write * 8);
-
-//     uint64_t prev_remaining_bits = b->bit_remainder & prev_remainder_bitmask;
-//     uint64_t bits_shifted = bits >> n_prev_remaining_bits;
-//     uint64_t bytes_out = (prev_remaining_bits | bits_shifted);
-//     if(bytes_to_write > 0)
-//         printf("0x%X\n", bytes_out);
-//     fwrite(&bytes_out, 1, bytes_to_write, b->fp);
-
-//     b->bit_remainder = 0;
-//     b->bit_remainder = bits & remainder_bitmask;
-//     b->bit_remainder_sz = n_remaining_bits;
-// }
