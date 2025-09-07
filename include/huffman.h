@@ -39,8 +39,7 @@ HuffmanNode* huffman_tree_create(ByteSamplingDistribution* bd);
 HuffmanNode* huffman_tree_free();
 
 void huffman_tree_to_dot_file(HuffmanNode* root, char* file_path);
-
-size_t huffman_tree_serialize(HuffmanNode* root);
+size_t huffman_tree_serialize(HuffmanNode* root, FILE* fp);
 HuffmanNode* huffman_tree_deserialize();
 
 /*

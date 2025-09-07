@@ -170,14 +170,50 @@ void huffman_tree_print_prefix(HuffmanNode* node) {
     }
 }
 
-size_t huffman_tree_serialize(HuffmanNode* root) {
+typedef struct Encoding {
+    uint64_t bits;  // In unfortunate cases, tree depth can become quite big.
+    uint8_t n_bits;
+} Encoding;
+
+static inline Encoding huffman_tree_get_encoding(HuffmanNode* node) {
+    uint8_t reverse_buf[256];
+
+    int i = 0;
+
+    do {
+        if (node->is_l_child) {
+            reverse_buf[i] = 0;
+        } else {
+            reverse_buf[i] = 1;
+        }
+
+        node = node->parent;
+        i++;
+    } while (node->parent != NULL);
+
+    Encoding e = {bits : 0, n_bits : 0};
+
+    for (int j = 0; j < i; j++) {
+        e.bits |= reverse_buf[j] << j - i;  // bits from low to high.
+        e.n_bits++;
+    }
+
+    // printf("Encoding: 0x%X\t", e.bits); printf("n_bits: %d\n", e.n_bits);
+
+    return e;  // Copy is fine.
+}
+
+size_t huffman_tree_serialize(HuffmanNode* root, FILE* fp) {
+    // Naive, way more memory efficient in canonical form.
     huff_stack_reset();
     huff_stack_push(root);
 
     while (huffman_tree_traverse(&root, 1) != TREE_EOT) {
         if (root->symbol != NULL && root->symbol != '\n') {
             printf("%c: ", root->symbol);
-            huffman_tree_print_prefix(root);
+            Encoding e = huffman_tree_get_encoding(root);
+            // huffman_tree_print_prefix(root);
+
             printf("\n");
         }
     }

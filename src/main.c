@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "bits.h"
 #include "file.h"
 #include "huffman.h"
 #include "statistic.h"
@@ -44,8 +45,24 @@ int main(int argc, char** argv) {
     HuffmanNode* root = huffman_tree_create(&bd);
     huffman_tree_to_dot_file(root, "./resources/generated.dot");
 
-    huffman_tree_serialize(root);
-    huffman_tree_free();
+    // huffman_tree_serialize(root);
+    // huffman_tree_free();
+
+    BitBuffer* b = bb_create(256);
+    bb_write(b, 0xFF, 4);
+    bb_write(b, 0, 3);
+    bb_write(b, 1, 1);
+    bb_write(b, UINT64_MAX, 4);
+    bb_write(b, 0, 4);
+    bb_write(b, UINT64_MAX, 4);
+    bb_write(b, 0, 1);
+    bb_write(b, 0, 3);
+    bb_write(b, UINT64_MAX, 4);
+    bb_write(b, 0, 4);
+
+    bb_write(b, 0xFFFFFFFF, 4 * 8 - 1);
+
+    bb_show(b);
 
     return 0;
 }
