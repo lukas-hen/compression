@@ -37,13 +37,3 @@ void bb_show(BitBuffer* b) {
     printf("\n");
 }
 void bb_free(BitBuffer* b, uint64_t bits, uint8_t n_bits);
-
-static inline uint64_t get_bitmask(uint64_t n_bits) {
-    uint64_t bits = 0;
-
-    for (int i = 0; i < n_bits; i++) {
-        bits |= 1 << i;
-    }
-
-    return bits;
-}
